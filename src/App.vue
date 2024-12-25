@@ -31,7 +31,7 @@
         <q-item to="/" clickable v-ripple>
           <q-item-section>{{ $t("common.home") }}</q-item-section>
         </q-item>
-        <q-item to="/login" clickable v-ripple>
+        <q-item to="/auth/login" clickable v-ripple>
           <q-item-section>{{ $t("common.login") }}</q-item-section>
         </q-item>
       </q-list>
