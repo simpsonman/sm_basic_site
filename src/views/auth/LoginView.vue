@@ -28,6 +28,13 @@
           </div>
         </q-form>
       </q-card-section>
+
+      <q-card-section class="text-center">
+        <p class="text-grey-6">{{ $t("login.noAccount") }}</p>
+        <router-link :to="{ name: 'register' }" class="text-primary">
+          {{ $t("login.register") }}
+        </router-link>
+      </q-card-section>
     </q-card>
   </q-page>
 </template>
@@ -49,5 +56,10 @@ const onSubmit = () => {
   width: 100%;
   max-width: 400px;
   padding: 20px;
+}
+
+a {
+  text-decoration: none;
+  font-weight: 500;
 }
 </style>
