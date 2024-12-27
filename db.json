@@ -1,5 +1,14 @@
 {
-  "users": [],
+  "users": [
+    {
+      "id": "m56gg0us-Rsl8ynY8",
+      "email": "lng515@naver.com",
+      "password": "d27f9926331f4bda2008db3cef1d222eade01d85feb50a79c65231e62630df00",
+      "firstName": "나건",
+      "lastName": "이",
+      "createdAt": "2024-12-27T07:52:20.308Z"
+    }
+  ],
   "pages": [],
   "posts": []
 }
