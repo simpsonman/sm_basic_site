@@ -8,7 +8,11 @@
   "auth": {
     "email": "Email",
     "password": "Password",
-    "confirmPassword": "Confirm Password"
+    "confirmPassword": "Confirm Password",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "nickname": "Nickname",
+    "nicknameOptional": "Nickname (Optional)"
   },
   "login": {
     "email": "Email",
