@@ -12,7 +12,9 @@
     "firstName": "First Name",
     "lastName": "Last Name",
     "nickname": "Nickname",
-    "nicknameOptional": "Nickname (Optional)"
+    "nicknameOptional": "Nickname (Optional)",
+    "passwordRule": "Password must be at least 8 characters long and include uppercase letters, lowercase letters, numbers, and special characters.",
+    "passwordHint": "Include uppercase letters, lowercase letters, numbers, and special characters (!@#$%^&*(),.?\":{}|<>) at least 8 characters long"
   },
   "login": {
     "email": "Email",
