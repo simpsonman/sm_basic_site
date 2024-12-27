@@ -108,26 +108,42 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from "vue";
-import { userService, type RegisterUserData } from "../services/userService";
-import { useRouter } from "vue-router";
+import { ref, reactive } from 'vue';
+import { useRouter } from 'vue-router';
+import { userService } from '../services/userService';
+import { Toast } from 'bootstrap';
 
 const router = useRouter();
 
-const email = ref("");
-const password = ref("");
-const confirmPassword = ref("");
-const firstName = ref("");
-const lastName = ref("");
-const nickname = ref("");
+// 폼 데이터
+const email = ref('');
+const firstName = ref('');
+const lastName = ref('');
+const nickname = ref('');
+const password = ref('');
+const confirmPassword = ref('');
 const loading = ref(false);
+
+// 에러 상태
 const errors = reactive({
   email: '',
-  password: '',
-  confirmPassword: '',
   firstName: '',
-  lastName: ''
+  lastName: '',
+  password: '',
+  confirmPassword: ''
 });
+
+const validatePassword = (password: string): boolean => {
+  if (!password) return false;
+  
+  const hasUpperCase = /[A-Z]/.test(password);
+  const hasLowerCase = /[a-z]/.test(password);
+  const hasNumbers = /\d/.test(password);
+  const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+  const isLongEnough = password.length >= 8;
+
+  return hasUpperCase && hasLowerCase && hasNumbers && hasSpecialChar && isLongEnough;
+};
 
 const validateForm = (): boolean => {
   let isValid = true;
@@ -191,15 +207,14 @@ const onSubmit = async () => {
     loading.value = true;
     console.log('회원가입 시도:', { email: email.value, firstName: firstName.value });
 
-    const userData: RegisterUserData = {
+    const result = await userService.register({
       email: email.value,
       password: password.value,
       firstName: firstName.value,
       lastName: lastName.value,
       nickname: nickname.value || undefined
-    };
+    });
 
-    const result = await userService.register(userData);
     console.log('회원가입 성공:', result);
     
     // Bootstrap 토스트로 성공 메시지 표시
@@ -217,7 +232,7 @@ const onSubmit = async () => {
       </div>
     `;
     document.body.appendChild(toastContainer);
-    const toast = new bootstrap.Toast(toastContainer.querySelector('.toast'));
+    const toast = new Toast(toastContainer.querySelector('.toast'));
     toast.show();
 
     router.push('/auth/login');
@@ -240,23 +255,11 @@ const onSubmit = async () => {
       </div>
     `;
     document.body.appendChild(toastContainer);
-    const toast = new bootstrap.Toast(toastContainer.querySelector('.toast'));
+    const toast = new Toast(toastContainer.querySelector('.toast'));
     toast.show();
   } finally {
     loading.value = false;
   }
-};
-
-const validatePassword = (password: string): boolean => {
-  if (!password) return false;
-  
-  const hasUpperCase = /[A-Z]/.test(password);
-  const hasLowerCase = /[a-z]/.test(password);
-  const hasNumbers = /\d/.test(password);
-  const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-  const isLongEnough = password.length >= 8;
-
-  return hasUpperCase && hasLowerCase && hasNumbers && hasSpecialChar && isLongEnough;
 };
 </script>
 
