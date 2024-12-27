@@ -23,10 +23,24 @@
             :rules="[(val) => !!val || $t('login.required')]"
           />
 
-          <div>
+          <div class="row justify-between items-center">
             <q-btn type="submit" color="primary" :label="$t('common.login')" />
+            <div class="text-caption">
+              <router-link to="/auth/find-account" class="text-primary">
+                {{ $t("login.findAccount") }}
+              </router-link>
+            </div>
           </div>
         </q-form>
+      </q-card-section>
+
+      <q-card-section class="text-center q-pt-none">
+        <p class="text-caption q-ma-none">
+          {{ $t("login.noAccount") }}
+          <router-link to="/auth/register" class="text-primary">
+            {{ $t("login.register") }}
+          </router-link>
+        </p>
       </q-card-section>
     </q-card>
   </q-page>
@@ -49,5 +63,13 @@ const onSubmit = () => {
   width: 100%;
   max-width: 400px;
   padding: 20px;
+}
+
+a {
+  text-decoration: none;
+}
+
+.text-caption {
+  color: rgba(0, 0, 0, 0.6);
 }
 </style>
