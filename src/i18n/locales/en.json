@@ -9,5 +9,11 @@
     "email": "Email",
     "password": "Password",
     "confirmPassword": "Confirm Password"
+  },
+  "login": {
+    "email": "Email",
+    "password": "Password",
+    "login": "Login",
+    "required": "Required field."
   }
 }

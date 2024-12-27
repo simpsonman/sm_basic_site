@@ -9,5 +9,11 @@
     "email": "이메일",
     "password": "비밀번호",
     "confirmPassword": "비밀번호 확인"
+  },
+  "login": {
+    "email": "이메일",
+    "password": "비밀번호",
+    "login": "로그인",
+    "required": "필수 입력 항목입니다."
   }
 }
