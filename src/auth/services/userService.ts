@@ -1,94 +1,102 @@
-import bcrypt from 'bcryptjs';
-import { v4 as uuidv4 } from 'uuid';
+import { nanoid } from 'nanoid';
 
-export interface User {
+interface User {
   id: string;
   email: string;
   password: string;
   firstName: string;
   lastName: string;
-  nickname: string;
-  createdAt: Date;
-}
-
-export interface RegisterUserData {
-  email: string;
-  password: string;
-  firstName: string;
-  lastName: string;
   nickname?: string;
+  createdAt: string;
 }
-
-// 임시로 메모리에 사용자 정보를 저장 (실제로는 데이터베이스를 사용해야 함)
-const users: User[] = [];
 
 class UserService {
-  async register(userData: RegisterUserData) {
-    try {
-      // 필수 필드 검증
-      if (!userData.email || !userData.password || !userData.firstName || !userData.lastName) {
-        throw new Error('필수 필드가 누락되었습니다.');
-      }
+  private users: User[] = [];
 
-      // 이메일 형식 검증
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(userData.email)) {
-        throw new Error('올바른 이메일 형식이 아닙니다.');
-      }
-
-      // 이메일 중복 체크
-      if (users.some(user => user.email === userData.email)) {
-        throw new Error('이미 존재하는 이메일입니다.');
-      }
-
-      // 비밀번호 해싱
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(userData.password, salt);
-
-      // 타임스탬프와 랜덤 텍스트를 조합한 고유 ID 생성
-      const timestamp = Date.now().toString(36);
-      const randomText = uuidv4().split('-')[0];
-      const userId = `${timestamp}-${randomText}`;
-
-      const newUser: User = {
-        id: userId,
-        email: userData.email,
-        password: hashedPassword,
-        firstName: userData.firstName,
-        lastName: userData.lastName,
-        nickname: userData.nickname || '',
-        createdAt: new Date()
-      };
-
-      users.push(newUser);
-      
-      // 비밀번호를 제외한 사용자 정보 반환
-      const { password, ...userWithoutPassword } = newUser;
-      return userWithoutPassword;
-    } catch (error) {
-      console.error('회원가입 처리 중 오류 발생:', error);
-      throw error;
-    }
+  // 회원 번호 생성 함수
+  private generateUserId(): string {
+    const timestamp = Date.now().toString(36); // 타임스탬프를 36진수로 변환
+    const randomStr = nanoid(8); // 8자리 랜덤 문자열 생성
+    return `${timestamp}-${randomStr}`;
   }
 
-  async login(email: string, password: string) {
-    try {
-      const user = users.find(u => u.email === email);
-      if (!user) {
-        throw new Error('사용자를 찾을 수 없습니다.');
-      }
+  // 임시 비밀번호 해시 함수 (실제 서비스에서는 서버에서 처리해야 함)
+  private async hashPassword(password: string): Promise<string> {
+    // 실제 서비스에서는 이 부분을 서버에서 처리해야 합니다.
+    // 임시로 base64 인코딩을 사용합니다.
+    const encoder = new TextEncoder();
+    const data = encoder.encode(password);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  }
 
-      const isValid = await bcrypt.compare(password, user.password);
-      if (!isValid) {
-        throw new Error('비밀번호가 일치하지 않습니다.');
-      }
+  // 임시 비밀번호 검증 함수 (실제 서비스에서는 서버에서 처리해야 함)
+  private async verifyPassword(password: string, hash: string): Promise<boolean> {
+    const hashedInput = await this.hashPassword(password);
+    return hashedInput === hash;
+  }
 
-      const { password: _, ...userWithoutPassword } = user;
-      return userWithoutPassword;
-    } catch (error) {
-      console.error('로그인 처리 중 오류 발생:', error);
-      throw error;
+  // 회원가입
+  async register(userData: {
+    email: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+    nickname?: string;
+  }): Promise<Omit<User, 'password'>> {
+    // 이메일 중복 검사
+    if (this.users.some(user => user.email === userData.email)) {
+      throw new Error('이미 등록된 이메일입니다.');
     }
+
+    // 비밀번호 해시화
+    const hashedPassword = await this.hashPassword(userData.password);
+
+    // 새 사용자 생성
+    const newUser: User = {
+      id: this.generateUserId(),
+      email: userData.email,
+      password: hashedPassword,
+      firstName: userData.firstName,
+      lastName: userData.lastName,
+      nickname: userData.nickname,
+      createdAt: new Date().toISOString()
+    };
+
+    // 사용자 저장
+    this.users.push(newUser);
+    
+    // 비밀번호를 제외한 사용자 정보 반환
+    const { password, ...userWithoutPassword } = newUser;
+    return userWithoutPassword;
+  }
+
+  // 로그인
+  async login(email: string, password: string): Promise<Omit<User, 'password'>> {
+    const user = this.users.find(u => u.email === email);
+    if (!user) {
+      throw new Error('이메일 또는 비밀번호가 올바르지 않습니다.');
+    }
+
+    const isValidPassword = await this.verifyPassword(password, user.password);
+    if (!isValidPassword) {
+      throw new Error('이메일 또는 비밀번호가 올바르지 않습니다.');
+    }
+
+    // 비밀번호를 제외한 사용자 정보 반환
+    const { password: _, ...userWithoutPassword } = user;
+    return userWithoutPassword;
+  }
+
+  // 사용자 조회
+  async getUserById(id: string): Promise<Omit<User, 'password'> | null> {
+    const user = this.users.find(u => u.id === id);
+    if (!user) return null;
+
+    // 비밀번호를 제외한 사용자 정보 반환
+    const { password, ...userWithoutPassword } = user;
+    return userWithoutPassword;
   }
 }
 
